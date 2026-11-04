@@ -1,0 +1,12 @@
+[package]
+name = "calendar-puzzle-web"
+version = "0.1.0"
+edition = "2024"
+publish = false
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+calendar_puzzle = { path = "../calendar_puzzle" }
+wasm-bindgen = "0.2"
