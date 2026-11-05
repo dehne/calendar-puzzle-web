@@ -1,4 +1,8 @@
-# Calendar Puzzle Web — W2
+# Calendar Puzzle Web
+
+- Public website: https://dehne.github.io/calendar-puzzle-web/
+- Web repository: https://github.com/dehne/calendar-puzzle-web
+- Rust library and CLI: https://github.com/dehne/calendar-puzzle
 
 An interactive calendar puzzle solver running the existing Rust library in the
 browser through WebAssembly. Choose weekday, month, and day, then click **Solve**
@@ -32,53 +36,79 @@ layout chooser, upload control, solution cache, search limits, or timeouts.
 
 ## Dependency arrangement
 
-The original repository has no configured Git remote, so the original crate is
-used directly without copying source:
+The solver is fetched from the public Rust library repository at the exact
+verified W3 publication commit, with no dependency on a sibling checkout:
 
 ```toml
-calendar_puzzle = { path = "../calendar_puzzle" }
+calendar_puzzle = { git = "https://github.com/dehne/calendar-puzzle.git", rev = "f2d192012263b2be13088a7846a30e5044164773" }
 ```
 
-Expected sibling directories:
+Cargo.lock records the same Git revision. That commit includes the MIT license,
+SPDX identifiers, and third-party notices. Only the two-swaps **configuration
+data** is copied into this repository; solver source is not duplicated.
+The only additional direct Rust dependency is wasm-bindgen. There is no shared
+Cargo workspace, and the web repository can be built on its own.
 
-```text
-Projects/
-├── calendar_puzzle/      # Original CLI/library repository, unchanged
-└── calendar-puzzle-web/  # This independent repository
+To update the library dependency, select a newer full commit hash from
+https://github.com/dehne/calendar-puzzle that has been reviewed and verified.
+Replace `rev` in Cargo.toml, run `cargo update -p calendar_puzzle`, then run the
+checks and release build below. Review and commit both Cargo.toml and Cargo.lock.
+Do not replace the revision with a moving branch or tag. Pushing the verified
+update to `main` automatically rebuilds and deploys the site.
+
+## GitHub Pages deployment
+
+[.github/workflows/deploy.yml](.github/workflows/deploy.yml) runs on pushes to the
+web repository's default branch, `main`, and supports `workflow_dispatch` from
+the Actions tab. The repository's Pages source is **GitHub Actions**.
+
+The build installs stable Rust **1.99.1**, the `wasm32-unknown-unknown` target,
+and wasm-pack **0.15.1** using rustup and `cargo install --locked`. It runs tests,
+formatting, and Clippy, then `wasm-pack build --target web --release -- --locked`.
+The trailing arguments enforce the committed lockfile for Cargo's Wasm build.
+wasm-bindgen **0.2.130** is locked in Cargo.lock; wasm-pack supplies the matching
+CLI and its wasm-opt tool (version **130** in the verified build).
+
+The official GitHub actions are pinned to immutable commits, with version
+comments: checkout **v7.0.1**, configure-pages **v6.0.0**,
+upload-pages-artifact **v5.0.0**, and deploy-pages **v5.0.1**. Build permissions
+are `contents: read` and `pages: read` (to read Pages settings); the deployment
+job receives `contents: read`, `pages: write`, and `id-token: write`, using the standard `github-pages` environment and the
+workflow's GitHub token. No personal access token, Node.js installation, npm,
+JavaScript bundler, or application framework is part of the build.
+
+`scripts/assemble-site.sh` copies the checked-in static assets, layout, LICENSE,
+THIRD_PARTY_NOTICES.md, and generated runtime JavaScript/Wasm into `dist/`.
+Generated snippets are included when present. Only `dist/` is uploaded to Pages;
+Rust caches, Git metadata, verification documents, package metadata, and generated
+TypeScript declarations are not deployed. Both `pkg/` and `dist/` are Git-ignored.
+All site asset and legal-document links remain relative to the repository subpath.
+
+To reproduce the deployment artifact locally after building:
+
+```bash
+bash scripts/assemble-site.sh
+python3 -m http.server 8000 --bind 127.0.0.1 --directory dist
 ```
 
-The tested library baseline is commit
-`c7704820395e1e3b1d02dda7eb3dd55f0b553360`. The path dependency follows the local
-checkout rather than pinning it. Only the two-swaps **configuration data** is
-copied into this project; it matches the original `layouts/two-swaps.txt` exactly.
-There is no solver source duplication. The only additional direct Rust dependency
-is `wasm-bindgen`; W2 adds no dependencies.
-
-When a remote becomes available, replace the path entry with the following,
-substituting the actual URL and a full commit hash that includes the MIT license
-and publication notices added after that baseline:
-
-```toml
-calendar_puzzle = { git = "https://HOST/OWNER/REPOSITORY.git", rev = "FULL_COMMIT_WITH_MIT_LICENSE" }
-```
-
-Then run `cargo update -p calendar_puzzle`, keep the updated lockfile, and repeat
-the tests and Wasm build. No commits have been made in the web repository.
+The public site is https://dehne.github.io/calendar-puzzle-web/. To redeploy an
+unchanged source revision, run **Deploy Calendar Puzzle to Pages** manually from
+the repository's Actions tab. Inspect the failed step and its logs if a build or
+deployment fails; the deployed version changes only after a successful build.
 
 ## Install, build, and serve
 
 Install stable Rust and Python 3 if necessary. From this project directory:
 
 ```bash
-rustup toolchain install stable
-rustup override set stable
-rustup target add wasm32-unknown-unknown
-cargo install wasm-pack --locked
+rustup toolchain install 1.99.1 --profile minimal --component rustfmt --component clippy --target wasm32-unknown-unknown
+rustup override set 1.99.1
+cargo install wasm-pack --version 0.15.1 --locked
 
 cargo test --locked
 cargo fmt --check
 cargo clippy --locked --all-targets -- -D warnings
-wasm-pack build --target web --release
+wasm-pack build --target web --release -- --locked
 python3 -m http.server 8000 --bind 127.0.0.1
 ```
 
@@ -137,11 +167,9 @@ the previous board; invalid requests do not become unsolvable results.
 Run the native checks above. They cover the retained W1 conversion/validation
 properties, selected-label coordinates, representative dates, month lengths,
 invalid inputs, and proven-unsolvable behavior. They require no browser.
-The original CLI tests can be checked without placing build output in that repo:
-
-```bash
-cargo test --locked --manifest-path ../calendar_puzzle/Cargo.toml --target-dir /tmp/calendar-original-tests
-```
+The original CLI/library has its own tests in
+https://github.com/dehne/calendar-puzzle. Clone that repository separately to run
+its tests; it is not needed as a local sibling for building this web application.
 
 Browser checks:
 

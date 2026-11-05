@@ -8,7 +8,9 @@ Do not distribute pkg/ alone without the accompanying applicable notices.
 
 ## Cargo dependencies
 
-The web adapter uses calendar_puzzle 0.1.0 by its unchanged local path. It is
+The web adapter uses calendar_puzzle 0.1.0 from
+https://github.com/dehne/calendar-puzzle.git at the exact W3 revision
+`f2d192012263b2be13088a7846a30e5044164773`. It is
 Copyright (c) 2026 D. L. Ehnebuske, MIT, and its notice and terms are also present
 in this project's LICENSE. There are no external JavaScript packages, fonts,
 images, UI frameworks, or separately licensed palette assets.

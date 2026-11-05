@@ -19,6 +19,7 @@ dependencies = [
 [[package]]
 name = "calendar_puzzle"
 version = "0.1.0"
+source = "git+https://github.com/dehne/calendar-puzzle.git?rev=f2d192012263b2be13088a7846a30e5044164773#f2d192012263b2be13088a7846a30e5044164773"
 
 [[package]]
 name = "cfg-if"
