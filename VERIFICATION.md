@@ -112,3 +112,43 @@ synchronous on the main browser thread, and the local path dependency still
 tracks the neighboring library checkout. Those remain considerations for later
 milestones. W2 adds no dependencies, workers, result caching, alternate layout
 selection, deployment, or full browser calendar evaluation.
+
+
+## W3 publication-preparation verification — 2026-11-04
+
+Both projects now identify their own code as MIT, with Copyright (c) 2026
+D. L. Ehnebuske, SPDX identifiers on maintained source, and Development/License
+README sections. THIRD_PARTY_NOTICES.md records the actual resolved Cargo
+licenses, tool/runtime review, selected alternatives, and retained notices.
+The package descriptions were added without inventing repository URLs. The
+web dependency remains the same local path, and both Cargo.lock files are
+unchanged.
+
+Verification passed:
+
+- CLI: all 43 tests, formatting, and Clippy with warnings denied.
+- Web: all 7 tests, formatting, and Clippy with warnings denied.
+- `wasm-pack build --target web --release` in a temporary verification copy.
+  Test targets were also directed to /tmp, keeping existing output out of the
+  verification builds. All existing generated pkg/ files remain byte-for-byte
+  unchanged. Background/editor checking refreshed several ignored target/
+  diagnostic and metadata cache files while the source headers changed; these
+  are not published web assets.
+- All 18 maintained Rust/test/JavaScript/CSS/HTML files have the proper SPDX
+  identifier. Aside from those comments, Rust and application JavaScript match
+  their pre-W3 content; the Wasm interface and algorithms are unchanged.
+- Both root LICENSE files are identical standard MIT texts with the specified
+  holder and year. The static About page displays those same terms verbatim.
+- All eight Firefox W2 regression scenarios passed again using the freshly
+  built temporary Wasm package. This includes the four representative dates,
+  exact node counts, mobile sizing, date controls, loading/validation errors,
+  and proven-unsolvable recovery.
+- Actual footer-link navigation opened `/calendar-puzzle-web/about.html`.
+  Its copyright, license terms, acknowledgment, and relative links to LICENSE
+  and THIRD_PARTY_NOTICES.md were accessible under that repository subpath.
+
+No publication, GitHub Pages configuration, Git tags, commits, dependency changes,
+or dependency-license tooling were introduced. Before deployment, include the
+root LICENSE and THIRD_PARTY_NOTICES.md with the static assets and generated
+Wasm/bindings. Future Git dependency pins should contain these MIT additions,
+rather than pointing only to the earlier functional baseline.

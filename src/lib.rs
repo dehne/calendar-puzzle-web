@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 //! Browser-facing calendar operations backed by the external Rust puzzle library.
 use calendar_puzzle::calendar::{CalendarDate, CalendarLayout, MONTH_LENGTHS, MONTHS, WEEKDAYS};
 use calendar_puzzle::{Board, Pentomino, Placement, solve_with_stats, validate_solution};

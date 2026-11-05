@@ -3,6 +3,8 @@ name = "calendar-puzzle-web"
 version = "0.1.0"
 edition = "2024"
 publish = false
+license = "MIT"
+description = "An interactive calendar puzzle solver running Rust in the browser through WebAssembly."
 
 [lib]
 crate-type = ["cdylib", "rlib"]

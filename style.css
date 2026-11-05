@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: MIT */
 :root {
   font-family: system-ui, sans-serif;
   color: #18202a;
@@ -50,3 +51,5 @@ select:focus-visible, button:focus-visible { outline: 3px solid #1c63ab; outline
 .piece-Z { background: #bad2e8; }
 .excluded { background: #fff; color: #111; outline: 2px solid #525961; outline-offset: -2px; }
 .note { font-size: 0.9rem; color: #434b54; }
+
+.license-text { white-space: pre-wrap; overflow-wrap: anywhere; }

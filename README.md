@@ -54,11 +54,12 @@ copied into this project; it matches the original `layouts/two-swaps.txt` exactl
 There is no solver source duplication. The only additional direct Rust dependency
 is `wasm-bindgen`; W2 adds no dependencies.
 
-When a remote containing that commit becomes available, replace the path entry
-with the following, substituting the actual URL:
+When a remote becomes available, replace the path entry with the following,
+substituting the actual URL and a full commit hash that includes the MIT license
+and publication notices added after that baseline:
 
 ```toml
-calendar_puzzle = { git = "https://HOST/OWNER/REPOSITORY.git", rev = "c7704820395e1e3b1d02dda7eb3dd55f0b553360" }
+calendar_puzzle = { git = "https://HOST/OWNER/REPOSITORY.git", rev = "FULL_COMMIT_WITH_MIT_LICENSE" }
 ```
 
 Then run `cargo update -p calendar_puzzle`, keep the updated lockfile, and repeat
@@ -175,3 +176,17 @@ The shipped two-swaps arrangement solves every valid date. `UNSOLVABLE` handling
 is tested natively using the original arrangement and in the browser using a
 verification-only HTTP response fixture; no layout-selection UI is added.
 See [VERIFICATION.md](VERIFICATION.md) for actual results and compatibility limits.
+
+## Development
+
+This project was developed with substantial assistance from OpenAI's ChatGPT and Codex. The project requirements, architecture, design decisions, and acceptance criteria were directed and reviewed by the project maintainer. Codex assisted with implementation, testing, and refactoring.
+
+## License
+
+Copyright (c) 2026 D. L. Ehnebuske.
+
+This project is distributed under the MIT License. See [LICENSE](LICENSE) for details.
+
+Third-party components retain their own licenses. See
+[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) for the dependency review and
+notices to retain with distributed binaries or browser assets.

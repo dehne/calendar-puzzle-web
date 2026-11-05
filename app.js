@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 const status = document.getElementById("status");
 const grid = document.getElementById("solution");
 const form = document.getElementById("date-form");
