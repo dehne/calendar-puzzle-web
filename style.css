@@ -22,15 +22,14 @@ select:focus-visible, button:focus-visible { outline: 3px solid #1c63ab; outline
   display: grid;
   grid-template-columns: repeat(9, minmax(0, 1fr));
   grid-template-rows: repeat(7, minmax(0, 1fr));
+  gap: 0;
   aspect-ratio: 9 / 7;
   width: 100%;
-  background: #525961;
-
+  background: #303841;
 }
 .board:empty { display: none; }
 .cell {
-  aspect-ratio: 1;
-  border: 1px solid #525961;
+  border: 0 solid #303841;
   display: grid;
   place-items: center;
   font-size: clamp(0.75rem, 3.4vw, 1.3rem);
@@ -49,7 +48,7 @@ select:focus-visible, button:focus-visible { outline: 3px solid #1c63ab; outline
 .piece-X { background: #e7b89c; }
 .piece-Y { background: #b8c6cc; }
 .piece-Z { background: #bad2e8; }
-.excluded { background: #fff; color: #111; outline: 2px solid #525961; outline-offset: -2px; }
+.excluded { background: #fff; color: #111; }
 .note { font-size: 0.9rem; color: #434b54; }
 
 .license-text { white-space: pre-wrap; overflow-wrap: anywhere; }

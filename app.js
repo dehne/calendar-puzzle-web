@@ -42,13 +42,31 @@ function selectionChanged() {
   setStatus("ready", "Date changed. Click Solve to find its arrangement.");
 }
 
+function isPentomino(label) {
+  return label.length === 1 && "FILPNTUVWXYZ".includes(label);
+}
+
+// Shared outlines are 1px from each neighbor, while board edges are 2px.
+// Equal piece identities join with no border; calendar cells never join.
+function borderWidths(cells, index) {
+  const row = Math.floor(index / 9);
+  const column = index % 9;
+  const samePiece = (neighbor) => isPentomino(cells[index]) && cells[index] === cells[neighbor];
+  return [
+    row === 0 ? 2 : samePiece(index - 9) ? 0 : 1,
+    column === 8 ? 2 : samePiece(index + 1) ? 0 : 1,
+    row === 6 ? 2 : samePiece(index + 9) ? 0 : 1,
+    column === 0 ? 2 : samePiece(index - 1) ? 0 : 1,
+  ];
+}
+
 function render(cells) {
   if (cells.length !== 63) throw new Error("The solver returned an invalid board length.");
   const fragment = document.createDocumentFragment();
-  for (const label of cells) {
+  for (const [index, label] of cells.entries()) {
     const cell = document.createElement("div");
-    const isPiece = label.length === 1 && "FILPNTUVWXYZ".includes(label);
-    cell.className = isPiece ? `cell piece-${label}` : "cell excluded";
+    cell.className = isPentomino(label) ? `cell piece-${label}` : "cell excluded";
+    cell.style.borderWidth = borderWidths(cells, index).map((width) => `${width}px`).join(" ");
     cell.textContent = label;
     fragment.append(cell);
   }
