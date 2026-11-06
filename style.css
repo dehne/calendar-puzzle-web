@@ -52,3 +52,7 @@ select:focus-visible, button:focus-visible { outline: 3px solid #1c63ab; outline
 .note { font-size: 0.9rem; color: #434b54; }
 
 .license-text { white-space: pre-wrap; overflow-wrap: anywhere; }
+
+.about-figure { margin: 1.5rem 0; }
+.about-figure img { display: block; max-width: 100%; height: auto; }
+.about-figure figcaption { margin-top: 0.5rem; font-size: 0.9rem; line-height: 1.5; }
