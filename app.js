@@ -74,8 +74,7 @@ function render(cells) {
   grid.setAttribute("aria-label", `Solution for ${weekday.value}, ${month.value} ${day.value}: 9 columns by 7 rows`);
 }
 
-form.addEventListener("submit", (event) => {
-  event.preventDefault();
+function solveSelectedDate() {
   if (!solver || button.disabled) return;
   button.disabled = true;
   grid.replaceChildren();
@@ -101,6 +100,11 @@ form.addEventListener("submit", (event) => {
     result?.free();
     button.disabled = false;
   }
+}
+
+form.addEventListener("submit", (event) => {
+  event.preventDefault();
+  solveSelectedDate();
 });
 
 try {
@@ -126,7 +130,7 @@ try {
   day.addEventListener("change", selectionChanged);
   controls.disabled = false;
   button.disabled = false;
-  setStatus("ready", "Choose a date, then click Solve.");
+  solveSelectedDate();
 } catch (error) {
   solver?.free();
   solver = undefined;

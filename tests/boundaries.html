@@ -43,7 +43,7 @@
             observer.observe(appStatus, { attributes: true });
           });
         }
-        assert(appStatus.dataset.state === "ready", appStatus.textContent);
+        assert(appStatus.dataset.state === "success", appStatus.textContent);
         const weekday = doc.getElementById("weekday");
         const month = doc.getElementById("month");
         const day = doc.getElementById("day");

@@ -1,0 +1,94 @@
+<!doctype html>
+<!-- SPDX-License-Identifier: MIT -->
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Startup solve checks</title>
+  </head>
+  <body>
+    <h1>Startup solve checks</h1>
+    <p>Serve the project over HTTP and open this page. Uses the production app and real Wasm solver.</p>
+    <p id="test-status" role="status" data-state="running">Running…</p>
+    <pre id="results"></pre>
+    <script type="module">
+      const assert = (condition, message) => { if (!condition) throw new Error(message); };
+      const status = document.getElementById("test-status");
+      const output = document.getElementById("results");
+      const scenarios = [
+        { date: [2024, 1, 29, 23, 30], expected: ["Thu", "Feb", "29"], width: 1000 },
+        { date: [2026, 0, 31, 23, 30], expected: ["Sat", "Jan", "31"], width: 320 },
+        ...["wasm", "fetch", "layout", "solve"].map(failure => ({ date: [2024, 1, 29], failure, width: 320 })),
+      ];
+      try {
+        const response = await fetch("../index.html");
+        assert(response.ok, "Could not load production HTML");
+        const html = await response.text();
+        for (const scenario of scenarios) {
+          const frame = document.createElement("iframe");
+          frame.title = "Startup scenario";
+          frame.style.cssText = `width:${scenario.width}px;height:900px;border:0`;
+          frame.dataset.scenario = JSON.stringify(scenario);
+          // The base keeps production assets working beneath any repository subpath.
+          frame.srcdoc = html.replace("<head>", `<head><base href="${new URL("../", location.href)}">`)
+            .replace('src="./app.js"', 'src="./tests/startup-frame.js"');
+          await new Promise(resolve => { frame.onload = resolve; document.body.append(frame); });
+          const win = frame.contentWindow;
+          // An async module may still be initializing when the frame's load fires.
+          while (!win.startupChecks?.complete) await new Promise(resolve => setTimeout(resolve, 10));
+          const doc = frame.contentDocument;
+          const checks = win.startupChecks;
+          assert(checks.initiallyDisabled, "Controls enabled before initialization");
+          const appStatus = doc.getElementById("status");
+          const button = doc.getElementById("solve");
+          const grid = doc.getElementById("solution");
+          assert(checks.calls.length === (scenario.failure === "solve" || !scenario.failure ? 1 : 0), "Wrong startup solve count");
+          if (scenario.failure) {
+            assert(appStatus.dataset.state === "error" && appStatus.textContent.startsWith("Error:"), "Missing error report");
+            assert(grid.children.length === 0 && !grid.hasAttribute("aria-label"), "Stale solution after error");
+            assert(button.disabled === (scenario.failure !== "solve"), "Wrong button state after failure");
+            assert(checks.errors.length === 1, "Expected one initialization or solving error");
+            output.textContent += `PASS ${scenario.failure} failure: ${appStatus.textContent}\n`;
+          } else {
+            assert(checks.errors.length === 0, `Unexpected console error: ${checks.errors}`);
+            const selectors = ["weekday", "month", "day"].map(id => doc.getElementById(id));
+            assert(JSON.stringify(selectors.map(e => e.value)) === JSON.stringify(scenario.expected), "Wrong local date selectors");
+            assert(JSON.stringify(checks.calls[0]) === JSON.stringify(scenario.expected), "Solved a different date");
+            assert(appStatus.dataset.state === "success" && grid.children.length === 63, "No automatic solution");
+            assert(/\d[\d,]* search nodes · \d+\.\d{2} ms/.test(appStatus.textContent), "Missing statistics or timing");
+            assert(!button.disabled, "Manual Solve still disabled");
+            assert(doc.documentElement.scrollWidth <= scenario.width, "Horizontal overflow");
+            const layout = await (await fetch("../layouts/two-swaps.txt")).text();
+            const labels = layout.trim().split(/\s+/);
+            const cells = [...grid.children];
+            const excluded = cells.filter(c => c.classList.contains("excluded"));
+            assert(excluded.length === 3, "Wrong exclusion count");
+            for (const label of scenario.expected) {
+              assert(cells[labels.indexOf(label)].textContent === label, `Wrong location for ${label}`);
+            }
+            button.click();
+            assert(checks.calls.length === 2 && appStatus.dataset.state === "success", "Manual solve failed");
+            const [weekday, month, day] = selectors;
+            const change = element => element.dispatchEvent(new win.Event("change", { bubbles: true }));
+            weekday.value = "Mon"; change(weekday);
+            month.value = "Jan"; change(month); day.value = "31"; change(day);
+            month.value = "Apr"; change(month);
+            assert(day.value === "30" && weekday.value === "Mon", "Month clamping or weekday independence changed");
+            assert(checks.calls.length === 2 && grid.children.length === 0, "Selector change solved or left a stale board");
+            button.click();
+            assert(checks.calls.length === 3 && appStatus.dataset.state === "success", "Changed-date manual solve failed");
+            output.textContent += `PASS ${scenario.width}px local ${scenario.expected.join(" ")}: one startup solve, manual solve, controls, labels, statistics\n`;
+          }
+          frame.remove();
+        }
+        status.dataset.state = "passed";
+        status.textContent = "PASS: startup, manual solving, and error scenarios.";
+      } catch (error) {
+        status.dataset.state = "failed";
+        status.textContent = `FAIL: ${error.message}`;
+        output.textContent += error.stack;
+        console.error(error);
+      }
+    </script>
+  </body>
+</html>
